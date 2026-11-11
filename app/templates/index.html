@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ParcelOps | Land parcel verification</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <div class="wrap header-row">
+      <div class="logo">▣ ParcelOps</div>
+      <span class="header-note">Land parcel verification · DevOps demonstration</span>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="intro">
+      <p class="eyebrow">FINAL PROJECT · MINIMUM VIABLE PRODUCT</p>
+      <h1>Parcel verification dashboard</h1>
+      <p class="muted">Register synthetic parcel records and track their verification status.</p>
+    </div>
+    <section class="stats" aria-label="Verification summary">
+      <div class="stat"><span>Total parcels</span><strong>{{ parcels | length }}</strong></div>
+      <div class="stat"><span>Pending</span><strong>{{ counts['Pending'] }}</strong></div>
+      <div class="stat"><span>Validated</span><strong>{{ counts['Validated'] }}</strong></div>
+      <div class="stat"><span>Disputed</span><strong>{{ counts['Disputed'] }}</strong></div>
+    </section>
+    <section class="panel" aria-labelledby="new-parcel">
+      <h2 id="new-parcel">Register a parcel</h2>
+      {% if duplicate %}<p class="notice" role="alert">This parcel ID already exists. Use a different ID.</p>{% endif %}
+      <form action="/parcels" method="post" class="register-form">
+        <label>Parcel ID<input type="text" name="parcel_id" maxlength="50" placeholder="PAR-001" required></label>
+        <label>Locality<input type="text" name="locality" maxlength="120" placeholder="Agbarho" required></label>
+        <button type="submit">Register parcel</button>
+      </form>
+    </section>
+    <section class="panel" aria-labelledby="parcel-list">
+      <h2 id="parcel-list">Parcel records</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Parcel ID</th><th>Locality</th><th>Status</th><th>Update status</th></tr></thead>
+          <tbody>
+          {% for parcel in parcels %}
+          <tr>
+            <td><strong>{{ parcel.parcel_id }}</strong></td>
+            <td>{{ parcel.locality }}</td>
+            <td><span class="pill {{ parcel.status | lower }}">{{ parcel.status }}</span></td>
+            <td>
+              <form action="/parcels/{{ parcel.id }}/status" method="post" class="status-form">
+                <select name="new_status" aria-label="Set status for {{ parcel.parcel_id }}">
+                  {% for status in statuses %}<option value="{{ status }}" {% if parcel.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}
+                </select>
+                <button type="submit" class="small-button">Save</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="empty">No parcels yet. Register your first synthetic parcel above.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <footer>Demo environment only · No authentication · Do not enter real personal or land records</footer>
+  </main>
+</body>
+</html>
